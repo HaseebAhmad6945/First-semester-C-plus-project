@@ -22,9 +22,9 @@ Technical Highlights
 
 - File-based Data Persistence: Utilizes text files for storing course and student data
 - User Authentication :Secure login system for Admin and Agent roles
-- **Colorized Console Interface: Enhanced user experience with Windows console colors
-- **Capacity Management: Built-in enrollment limits with availability tracking
-- **Data Validation: Comprehensive error handling and input validation
+- Colorized Console Interface: Enhanced user experience with Windows console colors
+- Capacity Management: Built-in enrollment limits with availability tracking
+- Data Validation: Comprehensive error handling and input validation
 
 System Architecture
 
