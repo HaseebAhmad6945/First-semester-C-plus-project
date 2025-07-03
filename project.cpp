@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<windows.h>  // For Windows console colors
+#include<cstring>
 using namespace std;
 
 const int MAX_COURSES = 50;
