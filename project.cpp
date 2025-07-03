@@ -20,6 +20,7 @@ int studentCourseIds[MAX_STUDENTS];
 
 int courseCount = 0;
 int studentCount = 0;
+
 // Color constants
 #define RED 12
 #define GREEN 10
@@ -28,6 +29,7 @@ int studentCount = 0;
 #define CYAN 11
 #define MAGENTA 13
 #define WHITE 15
+
 // Function declarations
 bool authenticate(int userType);
 void loadCourses();
@@ -50,7 +52,6 @@ void updateStudentInfo();
 void courseAvailability();
 void adminMenu();
 void agentMenu();
-void clearFiles();
 
 // Color function to set console text color
 void setColor(int color) 
@@ -58,6 +59,7 @@ void setColor(int color)
 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 SetConsoleTextAttribute(hConsole, color);
 }
+
 int main() 
 {
 loadCourses();
@@ -99,20 +101,24 @@ if (authenticate(1))
 {
 adminMenu();
 }
-} else if (userType == 2) 
+} 
+else if (userType == 2) 
 {
 if (authenticate(2)) 
 {
 agentMenu();
 }
-} else {
+} 
+else 
+{
 setColor(RED);
-cout<< "Invalid choice!\n";
+cout << "Invalid choice!\n";
 setColor(WHITE);
 }
     
 return 0;
 }
+
 // Custom string functions to replace built-in functions
 int customStrlen(const char* str) 
 {
@@ -171,126 +177,125 @@ return (char*)&haystack[i];
 return nullptr;
 }
 
-
 // Authentication function
 bool authenticate(int userType) 
 {
 char username[50], password[50];
     
 setColor(CYAN);
-cout<< "\n--- Login Required ---\n";
+cout << "\n--- Login Required ---\n";
 setColor(WHITE);
-cout<< "Username: ";
-cin>> username;
-cout<< "Password: ";
-cin>> password;
+cout << "Username: ";
+cin >> username;
+cout << "Password: ";
+cin >> password;
     
 if (userType == 1) 
 { // Admin
 if (customStrcmp(username, "haseeb") == 0 && customStrcmp(password, "haseebahmad") == 0) 
 {
 setColor(GREEN);
-cout<< "Admin login successful!\n";
+cout << "Admin login successful!\n";
 setColor(WHITE);
 return true;
 }
-} else if (userType == 2) 
+} 
+else if (userType == 2) 
 { // Agent
 if (customStrcmp(username, "agent") == 0 && customStrcmp(password, "123") == 0) 
 {
 setColor(GREEN);
-cout<< "Agent login successful!\n";
+cout << "Agent login successful!\n";
 setColor(WHITE);
 return true;
 }
 }
     
 setColor(RED);
-cout<< "Invalid username or password!\n";
+cout << "Invalid username or password!\n";
 setColor(WHITE);
 return false;
-}
-
-// Clear files function
-void clearFiles() 
-{
-ofstream file;
-file.open("courses.txt", ios::trunc);
-file.close();
-file.open("students.txt", ios::trunc);
-file.close();
 }
 
 // Utility Functions for File Handling (text files)
 void loadCourses() 
 {
-ifstream file;
-file.open("courses.txt");
+ifstream file("courses.txt");
 if (!file.is_open()) 
 {
 return; // File doesn't exist yet
 }
     
 courseCount = 0;
-while (file >> courseIds[courseCount]) 
+while (file >> courseIds[courseCount] && courseCount < MAX_COURSES) 
 {
-file.ignore();
+file.ignore(); // ignore the newline after the ID
 file.getline(courseTitles[courseCount], 50);
 file.getline(courseInstructors[courseCount], 50);
 file >> courseCapacities[courseCount] >> courseEnrolled[courseCount];
-file.ignore();
+file.ignore(); // ignore the newline after the numbers
 courseCount++;
-if (courseCount >= MAX_COURSES) break;
 }
 file.close();
 }
 
 void saveCourses() 
 {
-clearFiles(); // Clear file first
-ofstream file;
-file.open("courses.txt");
+ofstream file("courses.txt");
+if (!file.is_open()) 
+{
+setColor(RED);
+cout << "Error: Could not save courses!\n";
+setColor(WHITE);
+return;
+}
+    
 for (int i = 0; i < courseCount; i++) 
 {
-file<< courseIds[i] << endl;
-file<< courseTitles[i] << endl;
-file<< courseInstructors[i] << endl;
-file<< courseCapacities[i] << " " << courseEnrolled[i] << endl;
+file << courseIds[i] << endl;
+file << courseTitles[i] << endl;
+file << courseInstructors[i] << endl;
+file << courseCapacities[i] << " " << courseEnrolled[i] << endl;
 }
 file.close();
 }
 
 void loadStudents() 
 {
-ifstream file;
-file.open("students.txt");
+ifstream file("students.txt");
 if (!file.is_open()) 
 {
 return; // File doesn't exist yet
 }
     
 studentCount = 0;
-while (file >> studentIds[studentCount]) 
+while (file >> studentIds[studentCount] && studentCount < MAX_STUDENTS) 
 {
-file.ignore();
+file.ignore(); // ignore the newline after the ID
 file.getline(studentNames[studentCount], 50);
 file >> studentCourseIds[studentCount];
-file.ignore();
+file.ignore(); // ignore the newline after the course ID
 studentCount++;
-if (studentCount >= MAX_STUDENTS) break;
 }
-    file.close();
+file.close();
 }
 
 void saveStudents() 
 {
-ofstream file;
-file.open("students.txt");
+ofstream file("students.txt");
+if (!file.is_open()) 
+{
+setColor(RED);
+cout << "Error: Could not save students!\n";
+setColor(WHITE);
+return;
+}
+    
 for (int i = 0; i < studentCount; i++) 
 {
-file<< studentIds[i] << endl;
-file<< studentNames[i] << endl;
-file<< studentCourseIds[i] << endl;
+file << studentIds[i] << endl;
+file << studentNames[i] << endl;
+file << studentCourseIds[i] << endl;
 }
 file.close();
 }
@@ -301,66 +306,128 @@ void addCourse()
 if (courseCount >= MAX_COURSES) 
 {
 setColor(RED);
-cout<< "Course limit reached!\n";
+cout << "Course limit reached!\n";
 setColor(WHITE);
 return;
 }
     
-cout<< "Enter Course ID: ";
-cin>> courseIds[courseCount];
+int newId;
+cout << "Enter Course ID: ";
+cin >> newId;
+    
+    // Check if course ID already exists
+for (int i = 0; i < courseCount; i++) 
+{
+if (courseIds[i] == newId) 
+{
+setColor(RED);
+cout << "Course ID already exists!\n";
+setColor(WHITE);
+return;
+}
+}
+    
+courseIds[courseCount] = newId;
 cin.ignore();
-cout<< "Enter Course Title: ";
+cout << "Enter Course Title: ";
 cin.getline(courseTitles[courseCount], 50);
-cout<< "Enter Instructor Name: ";
+cout << "Enter Instructor Name: ";
 cin.getline(courseInstructors[courseCount], 50);
-cout<< "Enter Course Capacity: ";
-cin>> courseCapacities[courseCount];
+cout << "Enter Course Capacity: ";
+cin >> courseCapacities[courseCount];
 courseEnrolled[courseCount] = 0;
     
 courseCount++;
 saveCourses();
 setColor(GREEN);
-cout<< "Course added successfully!\n";
+cout << "Course added successfully!\n";
 setColor(WHITE);
 }
 
 void updateCourse() 
 {
+if (courseCount == 0) 
+{
+setColor(RED);
+cout << "No courses available to update!\n";
+setColor(WHITE);
+return;
+}
+    
 int id;
-cout<< "Enter Course ID to update: ";
-cin>> id;
-for (int i = 0; i < courseCount; i++) {
+cout << "Enter Course ID to update: ";
+cin >> id;
+    
+for (int i = 0; i < courseCount; i++) 
+{
 if (courseIds[i] == id) 
 {
-cout<< "Enter new title: ";
+cout << "Current Title: " << courseTitles[i] << endl;
+cout << "Enter new title: ";
 cin.ignore();
 cin.getline(courseTitles[i], 50);
-cout<< "Enter new instructor: ";
+cout << "Current Instructor: " << courseInstructors[i] << endl;
+cout << "Enter new instructor: ";
 cin.getline(courseInstructors[i], 50);
-cout<< "Enter new capacity: ";
-cin>> courseCapacities[i];
+cout << "Current Capacity: " << courseCapacities[i] << endl;
+cout << "Enter new capacity: ";
+cin >> courseCapacities[i];
+            
+// Ensure capacity is not less than current enrollment
+if (courseCapacities[i] < courseEnrolled[i]) 
+{
+setColor(YELLOW);
+cout << "Warning: New capacity is less than current enrollment (" << courseEnrolled[i] << ")\n";
+setColor(WHITE);
+}
+            
 saveCourses();
 setColor(GREEN);
-cout<< "Course updated successfully!\n";
+cout << "Course updated successfully!\n";
 setColor(WHITE);
 return;
 }
 }
 setColor(RED);
-cout<< "Course not found.\n";
+cout << "Course not found.\n";
 setColor(WHITE);
 }
 
 void deleteCourse() 
 {
+if (courseCount == 0) 
+{
+setColor(RED);
+cout << "No courses available to delete!\n";
+setColor(WHITE);
+return;
+}
+    
 int id;
-cout<< "Enter Course ID to delete: ";
-cin>> id;
+cout << "Enter Course ID to delete: ";
+cin >> id;
+    
 for (int i = 0; i < courseCount; i++) 
 {
 if (courseIds[i] == id) 
 {
-// Shift all elements left to fill the gap
+// Remove students enrolled in this course
+for (int j = studentCount - 1; j >= 0; j--) 
+{
+if (studentCourseIds[j] == id) 
+{
+// Shift students array
+for (int k = j; k < studentCount - 1; k++) 
+{
+studentIds[k] = studentIds[k + 1];
+customStrcpy(studentNames[k], studentNames[k + 1]);
+studentCourseIds[k] = studentCourseIds[k + 1];
+}
+studentCount--;
+}
+}
+            
+// Shift all course elements left to fill the gap
 for (int j = i; j < courseCount - 1; j++) 
 {
 courseIds[j] = courseIds[j + 1];
@@ -371,78 +438,145 @@ courseEnrolled[j] = courseEnrolled[j + 1];
 }
 courseCount--;
 saveCourses();
+saveStudents();
 setColor(GREEN);
-cout<< "Course deleted.\n";
+cout << "Course deleted successfully!\n";
 setColor(WHITE);
 return;
 }
 }
 setColor(RED);
-cout<< "Course not found.\n";
+cout << "Course not found.\n";
 setColor(WHITE);
 }
 
 void viewCourses() 
 {
+if (courseCount == 0) 
+{
+setColor(YELLOW);
+cout << "No courses available!\n";
+setColor(WHITE);
+return;
+}
+    
 setColor(CYAN);
-cout<< "\nAvailable Courses:\n";
+cout << "\n=== Available Courses ===\n";
 setColor(WHITE);
 for (int i = 0; i < courseCount; i++) 
 {
-cout<< "ID: "<< courseIds[i]
-<< ", Title: " << courseTitles[i]
-<< ", Instructor: " << courseInstructors[i]
-<< ", Capacity: " << courseCapacities[i]
-<< ", Enrolled: " << courseEnrolled[i] << endl;
+cout << "ID: " << courseIds[i]
+<< " | Title: " << courseTitles[i]
+<< " | Instructor: " << courseInstructors[i]
+<< " | Capacity: " << courseCapacities[i]
+<< " | Enrolled: " << courseEnrolled[i] << endl;
 }
+cout << "\n";
 }
 
 void assignInstructor() 
 {
+if (courseCount == 0) 
+{
+setColor(RED);
+cout << "No courses available!\n";
+setColor(WHITE);
+return;
+}
+    
 int id;
 cout << "Enter Course ID to assign instructor: ";
 cin >> id;
+    
 for (int i = 0; i < courseCount; i++) 
 {
 if (courseIds[i] == id) 
 {
+cout << "Current Instructor: " << courseInstructors[i] << endl;
 cout << "Enter new instructor name: ";
 cin.ignore();
 cin.getline(courseInstructors[i], 50);
 saveCourses();
 setColor(GREEN);
-cout<< "Instructor assigned successfully!\n";
+cout << "Instructor assigned successfully!\n";
 setColor(WHITE);
 return;
 }
 }
 setColor(RED);
-cout<< "Course not found.\n";
+cout << "Course not found.\n";
 setColor(WHITE);
 }
 
 void viewStudentsEnrolled() 
 {
-int id;
-cout<< "Enter Course ID: ";
-cin>> id;
-setColor(CYAN);
-cout<< "Students enrolled in Course ID " << id << ":\n";
+if (courseCount == 0) 
+{
+setColor(RED);
+cout << "No courses available!\n";
 setColor(WHITE);
+return;
+}
+    
+int id;
+cout << "Enter Course ID: ";
+cin >> id;
+    
+bool courseFound = false;
+for (int i = 0; i < courseCount; i++) 
+{
+if (courseIds[i] == id) 
+{
+courseFound = true;
+break;
+}
+}
+    
+if (!courseFound) 
+{
+setColor(RED);
+cout << "Course not found.\n";
+setColor(WHITE);
+return;
+}
+    
+setColor(CYAN);
+cout << "\n=== Students enrolled in Course ID " << id << " ===\n";
+setColor(WHITE);
+    
+bool hasStudents = false;
 for (int i = 0; i < studentCount; i++) 
 {
 if (studentCourseIds[i] == id) 
 {
-cout<< "ID: " << studentIds[i] << ", Name: " << studentNames[i] << endl;
+cout << "Student ID: " << studentIds[i] << " | Name: " << studentNames[i] << endl;
+hasStudents = true;
 }
 }
+    
+if (!hasStudents) 
+{
+setColor(YELLOW);
+cout << "No students enrolled in this course.\n";
+setColor(WHITE);
+}
+cout << "\n";
 }
 
 void removeStudent() 
 {
+if (studentCount == 0) 
+{
+setColor(RED);
+cout << "No students enrolled!\n";
+setColor(WHITE);
+return;
+}
+    
 int sid;
-cout<< "Enter Student ID to remove: ";
-cin>> sid;
+cout << "Enter Student ID to remove: ";
+cin >> sid;
+    
 for (int i = 0; i < studentCount; i++) 
 {
 if (studentIds[i] == sid) 
@@ -456,6 +590,7 @@ courseEnrolled[j]--;
 break;
 }
 }
+            
 // Shift all student elements left to fill the gap
 for (int j = i; j < studentCount - 1; j++) 
 {
@@ -467,13 +602,13 @@ studentCount--;
 saveStudents();
 saveCourses();
 setColor(GREEN);
-cout<< "Student removed.\n";
+cout << "Student removed successfully!\n";
 setColor(WHITE);
 return;
 }
 }
 setColor(RED);
-cout<< "Student not found.\n";
+cout << "Student not found.\n";
 setColor(WHITE);
 }
 
@@ -483,7 +618,15 @@ void enrollStudent()
 if (studentCount >= MAX_STUDENTS) 
 {
 setColor(RED);
-cout<< "Student limit reached!\n";
+cout << "Student limit reached!\n";
+setColor(WHITE);
+return;
+}
+    
+if (courseCount == 0) 
+{
+setColor(RED);
+cout << "No courses available for enrollment!\n";
 setColor(WHITE);
 return;
 }
@@ -491,13 +634,26 @@ return;
 int sid, cid;
 char name[50];
     
-cout<< "Enter Student ID: ";
-cin>> sid;
+cout << "Enter Student ID: ";
+cin >> sid;
+    
+// Check if student ID already exists
+for (int i = 0; i < studentCount; i++) 
+{
+if (studentIds[i] == sid) 
+{
+setColor(RED);
+cout << "Student ID already exists!\n";
+setColor(WHITE);
+return;
+}
+}
+    
 cin.ignore();
-cout<< "Enter Student Name: ";
+cout << "Enter Student Name: ";
 cin.getline(name, 50);
-cout<< "Enter Course ID to enroll: ";
-cin>> cid;
+cout << "Enter Course ID to enroll: ";
+cin >> cid;
     
 for (int i = 0; i < courseCount; i++) 
 {
@@ -513,19 +669,21 @@ courseEnrolled[i]++;
 saveStudents();
 saveCourses();
 setColor(GREEN);
-cout<< "Student enrolled!\n";
+cout << "Student enrolled successfully!\n";
 setColor(WHITE);
 return;
-} else {
+} 
+else 
+{
 setColor(RED);
-cout<< "Course is full!\n";
+cout << "Course is full!\n";
 setColor(WHITE);
 return;
 }
 }
 }
 setColor(RED);
-cout<< "Course not found.\n";
+cout << "Course not found.\n";
 setColor(WHITE);
 }
 
@@ -536,20 +694,41 @@ viewCourses();
 
 void searchCourse() 
 {
+if (courseCount == 0) 
+{
+setColor(RED);
+cout << "No courses available!\n";
+setColor(WHITE);
+return;
+}
+    
 char keyword[50];
-cout<< "Enter course keyword to search: ";
+cout << "Enter course keyword to search: ";
 cin.ignore();
 cin.getline(keyword, 50);
+    
 setColor(CYAN);
-cout<< "Matching Courses:\n";
+cout << "\n=== Search Results ===\n";
 setColor(WHITE);
+    
+bool found = false;
 for (int i = 0; i < courseCount; i++) 
 {
-if (customStrstr(courseTitles[i], keyword)) 
+if (customStrstr(courseTitles[i], keyword) || customStrstr(courseInstructors[i], keyword)) 
 {
-cout<< "ID: " << courseIds[i] << ", Title: " << courseTitles[i] << endl;
+cout << "ID: " << courseIds[i] << " | Title: " << courseTitles[i] 
+<< " | Instructor: " << courseInstructors[i] << endl;
+found = true;
 }
 }
+    
+if (!found) 
+{
+setColor(YELLOW);
+cout << "No courses found matching the keyword.\n";
+setColor(WHITE);
+}
+cout << "\n";
 }
 
 void agentViewStudentsEnrolled() 
@@ -564,53 +743,74 @@ removeStudent();
 
 void updateStudentInfo() 
 {
+if (studentCount == 0) 
+{
+setColor(RED);
+cout << "No students enrolled!\n";
+setColor(WHITE);
+return;
+}
+    
 int sid;
-cout<< "Enter Student ID to update: ";
-cin>> sid;
+cout << "Enter Student ID to update: ";
+cin >> sid;
+    
 for (int i = 0; i < studentCount; i++) 
 {
 if (studentIds[i] == sid) 
 {
-cout<< "Enter new name: ";
+cout << "Current Name: " << studentNames[i] << endl;
+cout << "Enter new name: ";
 cin.ignore();
 cin.getline(studentNames[i], 50);
 saveStudents();
 setColor(GREEN);
-cout<< "Student info updated!\n";
+cout << "Student info updated successfully!\n";
 setColor(WHITE);
 return;
 }
 }
 setColor(RED);
-cout<< "Student not found.\n";
+cout << "Student not found.\n";
 setColor(WHITE);
 }
 
 void courseAvailability() 
 {
+if (courseCount == 0) 
+{
+setColor(RED);
+cout << "No courses available!\n";
+setColor(WHITE);
+return;
+}
+    
 int id;
-cout<< "Enter Course ID: ";
-cin>> id;
+cout << "Enter Course ID: ";
+cin >> id;
+    
 for (int i = 0; i < courseCount; i++) 
 {
 if (courseIds[i] == id) 
 {
-cout<< "Course '" << courseTitles[i] << "' - ";
+cout << "Course '" << courseTitles[i] << "' - ";
 if (courseEnrolled[i] < courseCapacities[i]) 
 {
 setColor(GREEN);
-cout<< "Available (" << courseCapacities[i] - courseEnrolled[i] << " seats left)\n";
+cout << "Available (" << courseCapacities[i] - courseEnrolled[i] << " seats left)\n";
 setColor(WHITE);
-} else {
+} 
+else 
+{
 setColor(RED);
-cout<< "Full!\n";
+cout << "Full!\n";
 setColor(WHITE);
 }
 return;
 }
 }
 setColor(RED);
-cout<< "Course not found.\n";
+cout << "Course not found.\n";
 setColor(WHITE);
 }
 
@@ -618,15 +818,17 @@ setColor(WHITE);
 void adminMenu() 
 {
 int choice;
-do{
+do 
+{
 setColor(RED);
-cout<< "\n--- Admin Menu ---\n";
+cout << "\n--- Admin Menu ---\n";
 setColor(YELLOW);
-cout<< "1. Add Course\n2. Update Course\n3. Delete Course\n4. View Courses\n5. Assign Instructor\n";
-cout<< "6. View Students Enrolled\n7. Remove Student\n8. Exit\n";
+cout << "1. Add Course\n2. Update Course\n3. Delete Course\n4. View Courses\n5. Assign Instructor\n";
+cout << "6. View Students Enrolled\n7. Remove Student\n8. Exit\n";
 setColor(WHITE);
-cout<< "Enter choice: ";
-cin>> choice;
+cout << "Enter choice: ";
+cin >> choice;
+        
 switch (choice) 
 {
 case 1: addCourse(); break;
@@ -636,10 +838,14 @@ case 4: viewCourses(); break;
 case 5: assignInstructor(); break;
 case 6: viewStudentsEnrolled(); break;
 case 7: removeStudent(); break;
-case 8: return; // Return to main menu
+case 8: 
+setColor(GREEN);
+cout << "Exiting Admin Menu...\n";
+setColor(WHITE);
+return;
 default: 
 setColor(RED);
-cout<< "Invalid choice!\n";
+cout << "Invalid choice! Please try again.\n";
 setColor(WHITE);
 }
 } while (true);
@@ -648,15 +854,17 @@ setColor(WHITE);
 void agentMenu() 
 {
 int choice;
-do{
+do 
+{
 setColor(BLUE);
-cout<< "\n--- Agent Menu ---\n";
+cout << "\n--- Agent Menu ---\n";
 setColor(MAGENTA);
-cout<< "1. Enroll Student\n2. View Available Courses\n3. Search Course\n4. View Students Enrolled\n";
-cout<< "5. Remove Student\n6. Update Student Info\n7. Course Availability\n8. Exit\n";
+cout << "1. Enroll Student\n2. View Available Courses\n3. Search Course\n4. View Students Enrolled\n";
+cout << "5. Remove Student\n6. Update Student Info\n7. Course Availability\n8. Exit\n";
 setColor(WHITE);
-cout<< "Enter choice: ";
-cin>> choice;
+cout << "Enter choice: ";
+cin >> choice;
+        
 switch (choice) 
 {
 case 1: enrollStudent(); break;
@@ -666,10 +874,14 @@ case 4: agentViewStudentsEnrolled(); break;
 case 5: agentRemoveStudent(); break;
 case 6: updateStudentInfo(); break;
 case 7: courseAvailability(); break;
-case 8: return; // Return to main menu
+case 8: 
+setColor(GREEN);
+cout << "Exiting Agent Menu...\n";
+setColor(WHITE);
+ return;
 default: 
 setColor(RED);
-cout<< "Invalid choice!\n";
+cout << "Invalid choice! Please try again.\n";
 setColor(WHITE);
 }
 } while (true);
